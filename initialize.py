@@ -32,18 +32,35 @@ load_dotenv()
 # 関数定義
 ############################################################
 
+def check_user_agent():
+    """
+    USER_AGENT環境変数を確認し、設定されていない場合は警告を出力
+    """
+    user_agent = os.getenv("USER_AGENT")
+    if not user_agent:
+        logging.warning("USER_AGENT environment variable not set, consider setting it to identify your requests.")
+        os.environ["USER_AGENT"] = "DefaultUserAgent/1.0"  # デフォルト値を設定
+
 def initialize():
     """
     画面読み込み時に実行する初期化処理
     """
-    # 初期化データの用意
+    logger = logging.getLogger(ct.LOGGER_NAME)
+    logger.info("Initializing session state...")
     initialize_session_state()
-    # ログ出力用にセッションIDを生成
+    logger.info("Session state initialized.")
+
+    logger.info("Initializing session ID...")
     initialize_session_id()
-    # ログ出力の設定
+    logger.info("Session ID initialized.")
+
+    logger.info("Initializing logger...")
     initialize_logger()
-    # RAGのRetrieverを作成
+    logger.info("Logger initialized.")
+
+    logger.info("Initializing retriever...")
     initialize_retriever()
+    logger.info("Retriever initialized.")
 
 
 def initialize_logger():
@@ -120,12 +137,14 @@ def initialize_retriever():
     
     # 埋め込みモデルの用意
     embeddings = OpenAIEmbeddings()
+
+    from config import CHUNK_SIZE, CHUNK_OVERLAP, SEPARATOR, RETRIEVER_K
     
     # チャンク分割用のオブジェクトを作成
     text_splitter = CharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50,
-        separator="\n"
+        chunk_size=CHUNK_SIZE,
+        chunk_overlap=CHUNK_OVERLAP,
+        separator=SEPARATOR
     )
 
     # チャンク分割を実施
@@ -135,7 +154,7 @@ def initialize_retriever():
     db = Chroma.from_documents(splitted_docs, embedding=embeddings)
 
     # ベクターストアを検索するRetrieverの作成
-    st.session_state.retriever = db.as_retriever(search_kwargs={"k": 3})
+    st.session_state.retriever = db.as_retriever(search_kwargs={"k": RETRIEVER_K})
 
 
 def initialize_session_state():
