@@ -263,9 +263,9 @@ def display_contact_llm_response(llm_response):
             # ページ番号が取得できた場合のみ、ページ番号を表示（ドキュメントによっては取得できない場合がある）
             if "page" in document.metadata and document.metadata.get("page") is not None:
                 sub_page_number = int(document.metadata["page"]) + 1
-                sub_choice = {"source": sub_file_path, "page_number": sub_page_number}
+                sub_choice = {"source": file_path, "page_number": sub_page_number}
             else:
-                sub_choice = {"source": sub_file_path}
+                sub_choice = {"source": file_path}
 
             # 参照元のありかに応じて、適したアイコンを取得
             icon = utils.get_source_icon(sub_choice['source'])
